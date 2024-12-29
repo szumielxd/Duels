@@ -1,7 +1,10 @@
 package me.realized.duels.api.match;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import me.realized.duels.api.arena.Arena;
 import me.realized.duels.api.kit.Kit;
 import org.bukkit.entity.Player;
@@ -67,8 +70,7 @@ public interface Match {
      * @since 3.4.1
      */
     boolean isFinished();
-
-
+    
     /**
      * UnmodifiableSet of alive players in this {@link Match}.
      *
@@ -76,18 +78,55 @@ public interface Match {
      * @since 3.1.0
      */
     @NotNull
-    Set<Player> getPlayers();
+    @Deprecated
+    default Set<Player> getPlayers() {
+    	return getAlivePlayers();
+    }
+
+
+    /**
+     * UnmodifiableSet of alive players in this {@link Match}.
+     *
+     * @return Never-null UnmodifiableSet of alive players in this {@link Match}.
+     * @since 4.0.0
+     */
+    @NotNull
+    default Set<Player> getAlivePlayers() {
+    	return getTeams().stream()
+    			.map(MatchTeam::getAliveMembers)
+    			.flatMap(Collection::stream)
+    			.collect(Collectors.toUnmodifiableSet());
+    }
 
 
     /**
      * UnmodifiableSet of players who started this {@link Match}.
-     * Note: This set includes players who are offline. If you keep a reference
-     * to this match, all the player objects of those who started this match will
-     * not be garbage-collected.
      *
      * @return Never-null UnmodifiableSet of players who started this {@link Match}.
      * @since 3.4.1
      */
     @NotNull
-    Set<Player> getStartingPlayers();
+    @Deprecated
+    default Set<Player> getStartingPlayers() {
+    	return getAllPlayers();
+    }
+    
+    /**
+     * UnmodifiableSet of players who started this {@link Match}.
+     *
+     * @return Never-null UnmodifiableSet of players who started this {@link Match}.
+     * @since 4.0.0
+     */
+    @NotNull
+    default Set<Player> getAllPlayers() {
+    	return getTeams().stream()
+    			.map(MatchTeam::getAllMembers)
+    			.flatMap(Collection::stream)
+    			.collect(Collectors.toUnmodifiableSet());
+    }
+    
+    
+    Set<MatchTeam> getTeams();
+    
+    
 }
