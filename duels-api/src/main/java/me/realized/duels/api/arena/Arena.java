@@ -118,4 +118,12 @@ public interface Arena {
      * @since 3.2.0
      */
     boolean isRemoved();
+    
+    /**
+     * Get the amount of spawnpoints required by this area.
+     * 
+     * @return amount of required spawnpoints.
+     * @since 3.6.0
+     */
+    int getPositionsCount();
 }

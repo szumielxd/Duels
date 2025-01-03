@@ -51,8 +51,10 @@ public class ArenaImpl extends BaseButton implements Arena {
     @Getter
     @Setter(value = AccessLevel.PACKAGE)
     private boolean removed;
+    @Getter
+    private int positionsCount;
 
-    public ArenaImpl(final DuelsPlugin plugin, final String name, final boolean disabled) {
+    public ArenaImpl(final DuelsPlugin plugin, final String name, final boolean disabled, int positionsCount) {
         super(plugin, ItemBuilder
             .of(Items.EMPTY_MAP)
             .name(plugin.getLang().getMessage("GUI.arena-selector.buttons.arena.name", "name", name))
@@ -61,10 +63,12 @@ public class ArenaImpl extends BaseButton implements Arena {
         );
         this.name = name;
         this.disabled = disabled;
+        this.positionsCount = positionsCount;
+        this.size();
     }
 
-    public ArenaImpl(final DuelsPlugin plugin, final String name) {
-        this(plugin, name, false);
+    public ArenaImpl(final DuelsPlugin plugin, final String name, int spawnsCount) {
+        this(plugin, name, false, spawnsCount);
     }
 
     public void refreshGui(final boolean available) {
@@ -82,7 +86,7 @@ public class ArenaImpl extends BaseButton implements Arena {
     public boolean setPosition(@Nullable final Player source, final int pos, @NotNull final Location location) {
         Objects.requireNonNull(location, "location");
 
-        if (pos <= 0 || pos > 2) {
+        if (pos <= 0 || pos > this.positionsCount) {
             return false;
         }
 
@@ -150,8 +154,9 @@ public class ArenaImpl extends BaseButton implements Arena {
         return !isDisabled() && !isUsed() && getPosition(1) != null && getPosition(2) != null;
     }
 
-    public MatchImpl startMatch(final KitImpl kit, final Map<UUID, List<ItemStack>> items, final int bet, final Queue source) {
-        this.match = new MatchImpl(this, kit, items, bet, source);
+    public MatchImpl startMatch(final @Nullable KitImpl kit, final @NotNull Map<UUID, List<ItemStack>> items, final @NotNull List<Set<Player>> teams, final int bet, final @Nullable Queue source) {
+
+        this.match = new MatchImpl(this, kit, items, teams, bet, source);
         refreshGui(false);
         return match;
     }
@@ -192,20 +197,20 @@ public class ArenaImpl extends BaseButton implements Arena {
     @Override
     public boolean has(@NotNull final Player player) {
         Objects.requireNonNull(player, "player");
-        return isUsed() && !match.getPlayerMap().getOrDefault(player, true);
+        return isUsed() && match.isAlive(player);
     }
 
-    public void add(final Player player) {
+    /*public void add(final Player player) {
         if (isUsed()) {
             match.getPlayerMap().put(player, false);
         }
-    }
+    }*/
 
-    public void remove(final Player player) {
+    /*public void remove(final Player player) {
         if (isUsed() && match.getPlayerMap().containsKey(player)) {
             match.getPlayerMap().put(player, true);
         }
-    }
+    }*/
 
     public boolean isEndGame() {
         return size() <= 1;
